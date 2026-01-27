@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { Loader2 } from 'lucide-react';
 import { Header } from './components/Layout/Header';
 import { Navigation } from './components/Layout/Navigation';
 import { ProductGrid } from './components/PDV/ProductGrid';
@@ -7,11 +8,14 @@ import { MobileCart } from './components/PDV/MobileCart';
 import { KanbanBoard } from './components/Kanban/KanbanBoard';
 import { DashboardPage } from './components/Dashboard/DashboardPage';
 import { HistoryPage } from './components/History/HistoryPage';
+import { LoginPage } from './components/Auth/LoginPage';
+import { useAuth } from './hooks/useAuth';
 import type { Produto, ItemCarrinho } from './types';
 
 type TabId = 'dashboard' | 'pdv' | 'cozinha' | 'historico';
 
 function App() {
+  const { isAuthenticated, loading, signIn, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<TabId>('dashboard');
   const [carrinho, setCarrinho] = useState<ItemCarrinho[]>([]);
 
@@ -97,15 +101,33 @@ function App() {
     }
   };
 
+  // Loading inicial - verificando sessão
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-10 h-10 text-[#FF4500] animate-spin mx-auto mb-4" />
+          <p className="text-[#a1a1aa]">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Não autenticado - mostrar login
+  if (!isAuthenticated) {
+    return <LoginPage onLogin={signIn} />;
+  }
+
+  // Autenticado - mostrar app
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex flex-col">
-      <Header />
+      <Header onLogout={signOut} />
       <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
 
       <main className="flex-1 p-4 md:p-6 overflow-y-auto md:overflow-hidden">
         {renderContent()}
 
-        {/* Spacer para compensar a navegação fixa do mobile - altura suficiente para nav + botão flutuante */}
+        {/* Spacer para compensar a navegação fixa do mobile */}
         <div className="md:hidden h-28" aria-hidden="true" />
       </main>
     </div>
