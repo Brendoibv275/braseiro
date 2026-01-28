@@ -1,73 +1,160 @@
-# React + TypeScript + Vite
+# 🔥 Braseiro - Sistema de Gestão para Hamburgueria
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sistema completo de gestão para hamburguerias, desenvolvido com React, TypeScript e Supabase.
 
-Currently, two official plugins are available:
+![React](https://img.shields.io/badge/React-19.2-61DAFB?logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)
+![Vite](https://img.shields.io/badge/Vite-7.3-646CFF?logo=vite)
+![Supabase](https://img.shields.io/badge/Supabase-Database-3ECF8E?logo=supabase)
+![Tailwind](https://img.shields.io/badge/TailwindCSS-4.1-38B2AC?logo=tailwindcss)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📋 Funcionalidades
 
-## React Compiler
+### 🏠 Dashboard
+- Estatísticas em tempo real (vendas do dia, pedidos, ticket médio)
+- Gráfico de fluxo de vendas por hora
+- Ranking de produtos mais vendidos
+- Indicadores de performance
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 🛒 Recepção (PDV)
+- Catálogo de produtos por categorias (Hambúrgueres, Batatas, Bebidas)
+- Personalização de hambúrgueres com adicionais
+- Carrinho de compras intuitivo
+- Opção Loja/Delivery para pedidos
+- Campo de observações para personalização
+- **Mobile**: Carrinho flutuante com popup para melhor UX
 
-## Expanding the ESLint configuration
+### 👨‍🍳 Cozinha (Kanban)
+- Quadro Kanban com status: Pendente → Preparando → Pronto → Entregue
+- Drag and drop para movimentação de pedidos
+- Visualização de observações do cliente
+- Timer de tempo de preparo
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 📊 Histórico
+- Listagem completa de pedidos finalizados
+- Busca por nome, telefone ou pedido
+- Ranking de clientes frequentes
+- Estatísticas de vendas totais
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 🔐 Autenticação
+- Login obrigatório com Supabase Auth
+- Sessão persistente
+- Logout disponível no header
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🚀 Tecnologias
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- **Frontend**: React 19 + TypeScript
+- **Estilização**: Tailwind CSS 4
+- **Build**: Vite 7
+- **Backend/DB**: Supabase (PostgreSQL + Auth)
+- **Ícones**: Lucide React
+- **Deploy**: Netlify
+
+## 📦 Instalação
+
+### Pré-requisitos
+- Node.js 20+
+- Conta no [Supabase](https://supabase.com)
+
+### Passos
+
+1. **Clone o repositório**
+```bash
+git clone https://github.com/seu-usuario/braseiro.git
+cd braseiro
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+2. **Instale as dependências**
+```bash
+npm install
 ```
+
+3. **Configure as variáveis de ambiente**
+```bash
+cp .env.example .env
+```
+Edite o arquivo `.env` com suas credenciais do Supabase:
+```env
+VITE_SUPABASE_URL=sua_url_do_supabase
+VITE_SUPABASE_ANON_KEY=sua_anon_key_do_supabase
+```
+
+4. **Execute em desenvolvimento**
+```bash
+npm run dev
+```
+Acesse: http://localhost:5173
+
+## 🏗️ Build para Produção
+
+```bash
+npm run build
+```
+Os arquivos serão gerados na pasta `dist/`.
+
+## 🌐 Deploy no Netlify
+
+O projeto está configurado para deploy automático no Netlify:
+
+1. Conecte o repositório GitHub ao Netlify
+2. Configure as variáveis de ambiente:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+3. Deploy automático a cada push!
+
+## 📁 Estrutura do Projeto
+
+```
+braseiro/
+├── public/
+│   └── logo.png
+├── src/
+│   ├── components/
+│   │   ├── Auth/          # Componentes de autenticação
+│   │   ├── Dashboard/     # Componentes do dashboard
+│   │   ├── History/       # Componentes do histórico
+│   │   ├── Kanban/        # Componentes da cozinha
+│   │   ├── Layout/        # Header e Navigation
+│   │   └── PDV/           # Componentes do PDV
+│   ├── hooks/             # Custom hooks (useAuth, useOrders, etc)
+│   ├── lib/               # Cliente Supabase
+│   ├── types/             # Tipos TypeScript
+│   ├── App.tsx            # Componente principal
+│   └── main.tsx           # Entry point
+├── .env.example           # Template de variáveis
+├── netlify.toml           # Configuração Netlify
+└── package.json
+```
+
+## 🗃️ Banco de Dados (Supabase)
+
+### Tabelas Necessárias
+
+- `produtos` - Catálogo de produtos
+- `pedidos` - Pedidos realizados
+- Autenticação via Supabase Auth
+
+## 🎨 Design
+
+- **Tema**: Dark mode premium
+- **Cores principais**: 
+  - Laranja: `#FF4500` (accent)
+  - Fundo: `#0a0a0a`
+  - Cards: `#141414`
+- **Responsivo**: Mobile-first design
+
+## 📱 Mobile First
+
+O sistema foi desenvolvido com foco em dispositivos móveis:
+- Navegação inferior fixa
+- Cards compactos
+- Carrinho flutuante
+- Touch-friendly
+
+## 📄 Licença
+
+Este projeto é privado e de uso exclusivo.
+
+---
+
+Desenvolvido com 🔥 para **Braseiro Nordestino**
