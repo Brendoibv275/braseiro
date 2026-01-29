@@ -1,14 +1,19 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
-import type { Pedido } from '../types';
 
-type RealtimeCallback = (pedidos: Pedido[]) => void;
+type RefetchCallback = () => void;
 
-export function useRealtimeOrders(
-    currentPedidos: Pedido[],
-    onUpdate: RealtimeCallback
-) {
+export function useRealtimeOrders(refetch: RefetchCallback) {
+    const refetchRef = useRef(refetch);
+
+    // Manter referência atualizada sem causar re-subscribe
     useEffect(() => {
+        refetchRef.current = refetch;
+    }, [refetch]);
+
+    useEffect(() => {
+        console.log('Iniciando subscription real-time para hbn_clientes...');
+
         const channel = supabase
             .channel('orders-realtime')
             .on(
@@ -19,32 +24,18 @@ export function useRealtimeOrders(
                     table: 'hbn_clientes',
                 },
                 (payload) => {
-                    if (payload.eventType === 'INSERT') {
-                        const newPedido = payload.new as Pedido;
-                        if (['anotacao', 'cozinha', 'entrega'].includes(newPedido.status_funil)) {
-                            onUpdate([...currentPedidos, newPedido]);
-                        }
-                    } else if (payload.eventType === 'UPDATE') {
-                        const updatedPedido = payload.new as Pedido;
-                        if (['anotacao', 'cozinha', 'entrega'].includes(updatedPedido.status_funil)) {
-                            const updated = currentPedidos.map((p) =>
-                                p.id === updatedPedido.id ? updatedPedido : p
-                            );
-                            onUpdate(updated);
-                        } else {
-                            // Pedido foi finalizado, remover da lista
-                            onUpdate(currentPedidos.filter((p) => p.id !== updatedPedido.id));
-                        }
-                    } else if (payload.eventType === 'DELETE') {
-                        const deletedId = (payload.old as { id: number }).id;
-                        onUpdate(currentPedidos.filter((p) => p.id !== deletedId));
-                    }
+                    console.log('Evento real-time recebido:', payload.eventType);
+                    // Refetch sempre que houver qualquer mudança na tabela
+                    refetchRef.current();
                 }
             )
-            .subscribe();
+            .subscribe((status) => {
+                console.log('Status da subscription:', status);
+            });
 
         return () => {
+            console.log('Removendo subscription real-time');
             supabase.removeChannel(channel);
         };
-    }, [currentPedidos, onUpdate]);
+    }, []); // Dependências vazias = subscribe uma vez
 }

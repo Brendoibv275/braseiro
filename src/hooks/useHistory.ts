@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import type { TipoSaida } from '../types';
 
 interface PedidoHistorico {
     id: string;
@@ -8,6 +9,7 @@ interface PedidoHistorico {
     ultimo_pedido: string;
     valor_gasto: number;
     data_finalizacao: string;
+    saida: TipoSaida;
 }
 
 interface ClienteFrequente {
@@ -22,6 +24,8 @@ interface HistoryData {
     clientesFrequentes: ClienteFrequente[];
     totalPedidos: number;
     totalVendas: number;
+    totalFinalizados: number;
+    totalCancelados: number;
 }
 
 export function useHistory() {
@@ -30,6 +34,8 @@ export function useHistory() {
         clientesFrequentes: [],
         totalPedidos: 0,
         totalVendas: 0,
+        totalFinalizados: 0,
+        totalCancelados: 0,
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -45,9 +51,12 @@ export function useHistory() {
 
             if (histError) throw histError;
 
-            // Calcular clientes frequentes
+            // Calcular clientes frequentes (apenas finalizados)
             const clientesMap: Record<string, ClienteFrequente> = {};
-            historico?.forEach((pedido) => {
+            const pedidosFinalizados = historico?.filter(p => p.saida !== 'cancelados') || [];
+            const pedidosCancelados = historico?.filter(p => p.saida === 'cancelados') || [];
+
+            pedidosFinalizados.forEach((pedido) => {
                 const key = pedido.telefone;
                 if (!clientesMap[key]) {
                     clientesMap[key] = {
@@ -65,13 +74,16 @@ export function useHistory() {
                 .sort((a, b) => b.totalPedidos - a.totalPedidos)
                 .slice(0, 10);
 
-            const totalVendas = historico?.reduce((acc, p) => acc + (p.valor_gasto || 0), 0) || 0;
+            // Total de vendas só conta finalizados
+            const totalVendas = pedidosFinalizados.reduce((acc, p) => acc + (p.valor_gasto || 0), 0);
 
             setData({
                 pedidos: historico || [],
                 clientesFrequentes,
                 totalPedidos: historico?.length || 0,
                 totalVendas,
+                totalFinalizados: pedidosFinalizados.length,
+                totalCancelados: pedidosCancelados.length,
             });
 
         } catch (err) {
