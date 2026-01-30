@@ -2,6 +2,7 @@ import { Loader2, RefreshCw } from 'lucide-react';
 import { StatsCards } from './StatsCards';
 import { FlowMeter } from './FlowMeter';
 import { TopProducts } from './TopProducts';
+import { BotToggle } from './BotToggle';
 import { useAnalytics } from '../../hooks/useAnalytics';
 
 export function DashboardPage() {
@@ -37,6 +38,9 @@ export function DashboardPage() {
                     Atualizar
                 </button>
             </div>
+
+            {/* Bot Toggle - Atalho Rápido */}
+            <BotToggle />
 
             {/* Stats Cards */}
             <StatsCards
