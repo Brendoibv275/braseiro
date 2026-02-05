@@ -1,19 +1,32 @@
-import { ShoppingCart, LayoutGrid, BarChart3, History } from 'lucide-react';
+import { ShoppingCart, LayoutGrid, BarChart3, History, Settings } from 'lucide-react';
+import type { CargoFuncionario } from '../../contexts/AuthContext';
 
-type TabId = 'dashboard' | 'pdv' | 'cozinha' | 'historico';
+type TabId = 'dashboard' | 'pdv' | 'cozinha' | 'historico' | 'configuracoes';
 
 interface NavigationProps {
     activeTab: TabId;
     onTabChange: (tab: TabId) => void;
+    cargo: CargoFuncionario;
 }
 
-export function Navigation({ activeTab, onTabChange }: NavigationProps) {
-    const tabs = [
-        { id: 'dashboard' as const, label: 'Dashboard', icon: BarChart3 },
-        { id: 'pdv' as const, label: 'Recepção (PDV)', icon: ShoppingCart },
-        { id: 'cozinha' as const, label: 'Cozinha', icon: LayoutGrid },
-        { id: 'historico' as const, label: 'Histórico', icon: History },
+interface TabConfig {
+    id: TabId;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+    roles: CargoFuncionario[]; // Quais cargos podem ver essa tab
+}
+
+export function Navigation({ activeTab, onTabChange, cargo }: NavigationProps) {
+    const allTabs: TabConfig[] = [
+        { id: 'dashboard', label: 'Dashboard', icon: BarChart3, roles: ['admin'] },
+        { id: 'pdv', label: 'Recepção (PDV)', icon: ShoppingCart, roles: ['admin', 'funcionario'] },
+        { id: 'cozinha', label: 'Cozinha', icon: LayoutGrid, roles: ['admin', 'funcionario'] },
+        { id: 'historico', label: 'Histórico', icon: History, roles: ['admin'] },
+        { id: 'configuracoes', label: 'Configurações', icon: Settings, roles: ['admin'] },
     ];
+
+    // Filtrar tabs baseado no cargo do usuário
+    const tabs = allTabs.filter((tab) => tab.roles.includes(cargo));
 
     return (
         <>
@@ -57,3 +70,5 @@ export function Navigation({ activeTab, onTabChange }: NavigationProps) {
         </>
     );
 }
+
+export type { TabId };

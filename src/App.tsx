@@ -1,23 +1,49 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Header } from './components/Layout/Header';
 import { Navigation } from './components/Layout/Navigation';
+import type { TabId } from './components/Layout/Navigation';
 import { ProductGrid } from './components/PDV/ProductGrid';
 import { Cart } from './components/PDV/Cart';
 import { MobileCart } from './components/PDV/MobileCart';
 import { KanbanBoard } from './components/Kanban/KanbanBoard';
 import { DashboardPage } from './components/Dashboard/DashboardPage';
 import { HistoryPage } from './components/History/HistoryPage';
+import { SettingsPage } from './components/Settings/SettingsPage';
 import { LoginPage } from './components/Auth/LoginPage';
-import { useAuth } from './hooks/useAuth';
+import { PublicMenuPage } from './components/PublicMenu/PublicMenuPage';
+import { useAuth } from './contexts/AuthContext';
 import type { Produto, ItemCarrinho } from './types';
 
-type TabId = 'dashboard' | 'pdv' | 'cozinha' | 'historico';
-
 function App() {
-  const { isAuthenticated, loading, signIn, signOut } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabId>('dashboard');
+  const {
+    isAuthenticated,
+    loading,
+    cargo,
+    isAdmin,
+    signInWithEmail,
+    signInWithGoogle,
+    signUp,
+    signOut
+  } = useAuth();
+
+  // Verificar se está na rota pública do cardápio
+  const isPublicMenu = window.location.pathname === '/cardapio';
+
+  // Tab inicial baseada no cargo
+  const [activeTab, setActiveTab] = useState<TabId>('pdv');
   const [carrinho, setCarrinho] = useState<ItemCarrinho[]>([]);
+
+  // Quando autenticar, definir tab inicial baseada no cargo
+  useEffect(() => {
+    if (isAuthenticated && cargo) {
+      if (isAdmin) {
+        setActiveTab('dashboard');
+      } else {
+        setActiveTab('pdv');
+      }
+    }
+  }, [isAuthenticated, cargo, isAdmin]);
 
   const handleAddToCart = useCallback((produto: Produto) => {
     setCarrinho((prev) => {
@@ -59,6 +85,8 @@ function App() {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
+        // Dashboard só para admin
+        if (!isAdmin) return null;
         return <DashboardPage />;
       case 'pdv':
         return (
@@ -95,13 +123,24 @@ function App() {
       case 'cozinha':
         return <KanbanBoard />;
       case 'historico':
+        // Histórico só para admin
+        if (!isAdmin) return null;
         return <HistoryPage />;
+      case 'configuracoes':
+        // Configurações só para admin
+        if (!isAdmin) return null;
+        return <SettingsPage />;
       default:
         return null;
     }
   };
 
-  // Loading inicial - verificando sessão
+  // ROTA PÚBLICA: Cardápio (não requer autenticação)
+  if (isPublicMenu) {
+    return <PublicMenuPage />;
+  }
+
+  // Loading inicial - verificando sessão Firebase
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
@@ -115,14 +154,20 @@ function App() {
 
   // Não autenticado - mostrar login
   if (!isAuthenticated) {
-    return <LoginPage onLogin={signIn} />;
+    return (
+      <LoginPage
+        onLoginEmail={signInWithEmail}
+        onLoginGoogle={signInWithGoogle}
+        onSignUp={signUp}
+      />
+    );
   }
 
   // Autenticado - mostrar app
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex flex-col">
       <Header onLogout={signOut} />
-      <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
+      <Navigation activeTab={activeTab} onTabChange={setActiveTab} cargo={cargo} />
 
       <main className="flex-1 p-4 md:p-6 overflow-y-auto md:overflow-hidden">
         {renderContent()}

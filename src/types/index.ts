@@ -4,6 +4,7 @@
 export type StatusPausa = 'humano' | 'ia' | null;
 export type StatusImagem = 'recebido' | 'aceito' | null;
 export type TipoSaida = 'finalizados' | 'cancelados';
+export type TipoOrigem = 'loja' | 'qrcode' | 'delivery';
 
 export interface Produto {
     id: number;
@@ -31,6 +32,7 @@ export interface Pedido {
     // Novos campos de orquestração
     pausa?: StatusPausa;
     imagem?: StatusImagem;
+    origem?: TipoOrigem;
 }
 
 export type StatusFunil = 'anotacao' | 'cozinha' | 'entrega' | 'finalizado';

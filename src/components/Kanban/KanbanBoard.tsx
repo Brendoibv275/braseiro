@@ -3,6 +3,8 @@ import { Loader2, RefreshCw, CheckCircle, X, XCircle } from 'lucide-react';
 import { KanbanColumn } from './KanbanColumn';
 import { useOrders } from '../../hooks/useOrders';
 import { useRealtimeOrders } from '../../hooks/useRealtimeOrders';
+import { useAutoRefresh } from '../../hooks/useAutoRefresh';
+import { useOrderNotification } from '../../hooks/useOrderNotification';
 import type { StatusFunil, Pedido } from '../../types';
 
 export function KanbanBoard() {
@@ -32,6 +34,15 @@ export function KanbanBoard() {
         setPedidosLocais(null); // Limpar estado otimista
         refetch();
     });
+
+    // Auto-refresh a cada 5 segundos para manter dados atualizados
+    useAutoRefresh(() => {
+        setPedidosLocais(null);
+        refetch();
+    }, 5000);
+
+    // Notificação sonora quando novos pedidos chegam na cozinha
+    useOrderNotification(pedidosAtuais);
 
     const mostrarNotificacao = (tipo: 'sucesso' | 'erro' | 'info', texto: string) => {
         setNotificacao({ tipo, texto });

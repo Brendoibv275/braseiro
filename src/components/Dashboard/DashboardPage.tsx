@@ -3,10 +3,15 @@ import { StatsCards } from './StatsCards';
 import { FlowMeter } from './FlowMeter';
 import { TopProducts } from './TopProducts';
 import { BotToggle } from './BotToggle';
+import { ReportGenerator } from '../Reports/ReportGenerator';
 import { useAnalytics } from '../../hooks/useAnalytics';
+import { useAutoRefresh } from '../../hooks/useAutoRefresh';
 
 export function DashboardPage() {
     const { analytics, loading, error, refetch } = useAnalytics();
+
+    // Auto-refresh a cada 30 segundos para manter dashboard atualizado
+    useAutoRefresh(refetch, 30000);
 
     if (loading) {
         return (
@@ -96,6 +101,9 @@ export function DashboardPage() {
                     )}
                 </div>
             </div>
+
+            {/* Relatórios PDF */}
+            <ReportGenerator />
         </div>
     );
 }
